@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsRectItem
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsRectItem, QGraphicsSceneMouseEvent
 from NewRectangle import newRectangle
 from PyQt5.QtCore import Qt, QRectF, pyqtSignal, QObject
 from PyQt5.QtGui import QPen
+
 
 class Scene(QGraphicsScene):
     def __init__(self):
@@ -12,9 +13,7 @@ class Scene(QGraphicsScene):
         self.rect = QGraphicsRectItem()
         self.lastPos_X = 0
         self.lastPos_Y = 0
-        #self.onResize = pyqtSignal()
-
-
+        # self.onResize = pyqtSignal()
 
     def set_draw_enable(self, en):
         self.draw = en
@@ -25,7 +24,6 @@ class Scene(QGraphicsScene):
                     item.setMovable(False)
                 else:
                     item.setMovable(True)
-
 
     def isDrawEnable(self):
         return self.draw
@@ -42,7 +40,7 @@ class Scene(QGraphicsScene):
         for item in items_list:
             if isinstance(item, newRectangle):
                 # код с CV
-                pass # временно
+                pass  # временно
         return self.m_items
 
     def sortSizeRect(self):
@@ -51,9 +49,9 @@ class Scene(QGraphicsScene):
         for item in items_list:
             if isinstance(item, newRectangle):
                 list.append(item)
-        sorted(list, key = lambda a,b: a.get_W() * a.get_H < b.get_W() * b.get_H())
+        sorted(list, key=lambda a, b: a.get_W() * a.get_H < b.get_W() * b.get_H())
         for i in list:
-            list[i].setZValue(1000-i)
+            list[i].setZValue(1000 - i)
 
     def deleteItem(self):
         items_list = self.items()
@@ -66,8 +64,8 @@ class Scene(QGraphicsScene):
         if count > 0:
             self.update()
 
-    def mousePressEvent(self, event):
-        #QGraphicsScene.mousePressEvent(event)
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
+        super().mousePressEvent(event)
         if self.draw:
             if event.button() == Qt.LeftButton:
                 self.rect.setRect(QRectF(event.scenePos().x(), event.scenePos().y(), 0, 0))
@@ -78,8 +76,8 @@ class Scene(QGraphicsScene):
                 self.lastPos_Y = event.scenePos().y()
                 self.m_left_btn_press = True
 
-    def mouseMoveEvent(self, event):
-        #QGraphicsScene.mouseMoveEvent(event)
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
+        super().mouseMoveEvent(event)
         rectangle = QRectF()
         if self.draw:
             if self.m_left_btn_press:
@@ -105,8 +103,8 @@ class Scene(QGraphicsScene):
                     rectangle.setTopRight(event.scenePos())
                     self.rect.setRect(rectangle)
 
-    def mouseReleaseEvent(self, event):
-        self.mouseReleaseEvent(event)
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
+        super().mousePressEvent(event)
         if self.draw:
             if event.button() == Qt.LeftButton:
                 initRect = QRectF(self.rect.rect())
@@ -117,13 +115,3 @@ class Scene(QGraphicsScene):
                 self.addItem(nrect)
                 self.m_left_btn_press = False
                 self.sortSizeRect()
-
-
-
-
-
-
-
-
-
-
