@@ -5,6 +5,7 @@ from CommonState import COLOR_IMAGE
 
 class CommonProcessingInterface(QObject):
     def __init__(self, sizeCutRegion):
+        super().__init__()
         self.saveFolderName = "Prepare Data"
         self.saveClassificationFileName = "classification.pd"
         self.saveTrainFolderName = "train"

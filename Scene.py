@@ -83,22 +83,22 @@ class Scene(QGraphicsScene):
             if self.m_left_btn_press:
                 lastPos_X = self.lastPosition_X()
                 lastPos_Y = self.lastPosition_Y()
-                if event.scenePos().x() > lastPos_X and event.scenePos.y() > lastPos_Y:
+                if event.scenePos().x() > lastPos_X and event.scenePos().y() > lastPos_Y:
                     rectangle.setTopLeft(self.rect.rect().topLeft())
                     rectangle.setBottomRight(event.scenePos())
                     self.rect.setRect(rectangle)
 
-                elif event.scenePos().x() < lastPos_X and event.scenePos.y() > lastPos_Y:
+                elif event.scenePos().x() < lastPos_X and event.scenePos().y() > lastPos_Y:
                     rectangle.setTopRight(self.rect.rect().topRight())
                     rectangle.setBottomLeft(event.scenePos())
                     self.rect.setRect(rectangle)
 
-                elif event.scenePos().x() < lastPos_X and event.scenePos.y() < lastPos_Y:
+                elif event.scenePos().x() < lastPos_X and event.scenePos().y() < lastPos_Y:
                     rectangle.setBottomRight(self.rect.rect().bottomRight())
                     rectangle.setTopLeft(event.scenePos())
                     self.rect.setRect(rectangle)
 
-                elif event.scenePos().x() > lastPos_X and event.scenePos.y() < lastPos_Y:
+                elif event.scenePos().x() > lastPos_X and event.scenePos().y() < lastPos_Y:
                     rectangle.setBottomLeft(self.rect.rect().bottomLeft())
                     rectangle.setTopRight(event.scenePos())
                     self.rect.setRect(rectangle)
@@ -109,9 +109,9 @@ class Scene(QGraphicsScene):
             if event.button() == Qt.LeftButton:
                 initRect = QRectF(self.rect.rect())
                 self.removeItem(self.rect)
-                nrect = newRectangle(initRect)
-                nrect.onResize_signal.connnect(self.sortSizeRect())
-                nrect.setMovable(False)
-                self.addItem(nrect)
+                self.nrect = newRectangle(initRect)
+                self.nrect.onResizeSignal.connect(self.sortSizeRect)
+                self.nrect.setMovable(False)
+                self.addItem(self.nrect)
                 self.m_left_btn_press = False
                 self.sortSizeRect()

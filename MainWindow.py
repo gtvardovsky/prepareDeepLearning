@@ -2,7 +2,7 @@ import sys
 from os.path import expanduser
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon, QBrush, QPen
+from PyQt5.QtGui import *
 from UI import mainwindow_ui
 from ConstSettingWidget import ConstSettingsWidget
 from Scene import Scene
@@ -10,6 +10,7 @@ from ImageProcessingManager import ImageProcessingManager
 from ImagesListWidget import ImagesListWidget
 from NewRectangle import newRectangle
 from CommonState import WORK_STATE
+import cv2
 
 class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
     def __init__(self):
@@ -17,21 +18,27 @@ class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
         super().__init__()
         # Инициализация дизайна
         self.init_UI()
+        # Сцена
         self.mScene = Scene()
-        self.m_imageProcessingManager = ImageProcessingManager()
         self.graphicsView.setScene(self.mScene)
+        # Manager
+        self.m_imageProcessingManager = ImageProcessingManager()
+
         self.m_workState = WORK_STATE['IMAGES_LIST']
         self.m_pointWidget = self.m_imageProcessingManager.get_current_widget(self.m_workState)
         self.m_spacer = QSpacerItem(1,1,QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # connect
+        self.m_imageProcessingManager.m_processingLevel[WORK_STATE['IMAGES_LIST']].newFrameSignal.connect(self.newFrame)
 
 
     def init_UI(self):
         self.setupUi(self)
         # Создаем экз класса ConstSettingsWidget, добавляем его на layout. layout в свою очередь добавляем на MainWindow
         mSetWid = ConstSettingsWidget()
-        mSetWid.mImageRadio.toggled.connect(lambda : self.setWorkStateImage(mSetWid.mImageRadio))
-        mSetWid.mVideoRadio.toggled.connect(lambda :self.setWorkStateVideo(mSetWid.mVideo_radio))
-        mSetWid.mWebCamRadio.toggled.connect(lambda :self.setWorkStateWebcam(mSetWid.mWebCam_radio))
+        mSetWid.mImageRadio.toggled.connect(lambda: self.setWorkStateImage(mSetWid.mImageRadio))
+        mSetWid.mVideoRadio.toggled.connect(lambda: self.setWorkStateVideo(mSetWid.mVideo_radio))
+        mSetWid.mWebCamRadio.toggled.connect(lambda: self.setWorkStateWebcam(mSetWid.mWebCam_radio))
         mImageWidget = ImagesListWidget()
         h_box = QHBoxLayout()
         h_box.addWidget(mSetWid)
@@ -124,6 +131,28 @@ class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
             self.mScene.clear()
             self.SettingsGroupBox.layout().addWidget(self.m_pointWidget)
             self.SettingsGroupBox.layout().addItem(self.m_spacer)
+
+    def newFrame(self, frame):
+        if len(frame.shape) == 3:
+            img = QImage(frame.data, frame.shape[1], frame.shape[0], QImage.Format_RGB888).rgbSwapped()
+        else:
+            img = QImage(frame.data, frame.shape[1], frame.shape[0], QImage.Format_Indexed8)
+
+
+        self.mScene.clear()
+        self.mScene.setSceneRect(0, 0, img.width(), img.height())
+
+        pix = QPixmap.fromImage(img)
+        self.mScene.addPixmap(pix)
+        self.resizeEvent(None)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.mScene.width() > 0 and self.mScene.height() > 0:
+            GRAPHICS_VIEW_MARGIN = 20
+            scale = min( (self.graphicsView.width() - GRAPHICS_VIEW_MARGIN) / self.mScene.width(), (self.graphicsView.height() - GRAPHICS_VIEW_MARGIN) / self.mScene.height() )
+            self.graphicsView.resetTransform()
+            self.graphicsView.scale(scale,scale)
 
 
 def main():

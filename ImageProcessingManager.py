@@ -6,12 +6,15 @@ from CommonState import WORK_STATE
 
 class ImageProcessingManager(QObject):
     def __init__(self):
+        super().__init__()
         self.m_current_state = 'IMAGES_LIST'
         self.m_base_widget = QWidget()
         self.m_processingLevel = {}
         self.m_sizeCutRegion = (256, 256)
         # self.m_processingLevel[WORK_STATE['VIDEO']] = VideoProcessing()
         self.m_processingLevel[WORK_STATE['IMAGES_LIST']] = ImageListProcessing(self.m_sizeCutRegion)
+
+        #self.m_processingLevel[WORK_STATE['IMAGES_LIST']].newFrameSignal.connect(self.slot)
 
 
 
@@ -27,7 +30,13 @@ class ImageProcessingManager(QObject):
             pass
 
     def setWorkPathOrFile(self, path):
-        self.m_processingLevel[self.m_current_state].setWorkPathOrFile(path)
+        a = self.m_processingLevel[self.m_current_state]
+        # self.m_processingLevel[self.m_current_state].setWorkPathOrFile(path)
+        a.setWorkPathOrFile(path)
+
+    def slot(self, img):
+        print(img)
+
 
 
 

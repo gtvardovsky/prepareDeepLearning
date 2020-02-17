@@ -1,14 +1,16 @@
 from PyQt5.QtCore import QObject, QRectF, Qt, pyqtSignal
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent, QGraphicsObject
 from PyQt5.QtGui import QPen
 import copy
 
-RESIZE_ZONE_SIZE = 5;
-MIN_AREA_SIZE = 10;
+RESIZE_ZONE_SIZE = 5
+MIN_AREA_SIZE = 10
 
-class newRectangle(QGraphicsItem):
+class newRectangle(QGraphicsObject):
+    onResizeSignal = pyqtSignal()
     def __init__(self, initialRect):
         super().__init__()
+
         self.m_innerRect = initialRect
         # Нахождение мыши: True  - внутри прямоугольника, False - вне
         self.m_hovered = False
@@ -21,7 +23,7 @@ class newRectangle(QGraphicsItem):
         # Флаг для разрешения "выбора" прямоугольника
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         # Аналог emit() из Qt creator
-        #self.onResize_signal = pyqtSignal()
+
 
 
     # Определение (пересчет) рабочей (кликабельной) зоны для прямоугольника
@@ -151,7 +153,7 @@ class newRectangle(QGraphicsItem):
         if self.m_movable:
             self.m_active_zone = None
             self.setCursor(Qt.OpenHandCursor)
-            #self.onResize.emit()
+            self.onResizeSignal.emit()
 
     # Генерация координат квадратиков по углам
     def generate_zones(self):
