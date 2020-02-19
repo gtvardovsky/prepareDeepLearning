@@ -27,6 +27,7 @@ class CommonProcessingInterface(QObject):
         self.m_check_Draw = False
         self.m_size_CutRegion = sizeCutRegion
         self.m_currentImage = None
+        self.m_id_image = 0
 
     def set_Save_Path(self, path):
         self.m_savePath = path
@@ -75,3 +76,10 @@ class CommonProcessingInterface(QObject):
 
             # pos = classificationData.lastIndexOf(QChar(' '));
             # asd
+
+    def setColor(self, color):
+        self.m_color = color
+        self.openImage(self.m_id_image)
+
+    def openImage(self, id):
+        pass

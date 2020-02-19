@@ -19,8 +19,11 @@ class ImageProcessingManager(QObject):
 
 
     def get_current_widget(self, state):
+        if self.m_base_widget is not None:
+            del self.m_base_widget
+            self.m_base_widget = None
         if state == WORK_STATE['IMAGES_LIST']:
-            widget = ImagesListWidget()
+            widget = ImagesListWidget(self.m_processingLevel[state])
             # connect
             self.m_base_widget = widget
         elif state == WORK_STATE['VIDEO']:
@@ -28,11 +31,11 @@ class ImageProcessingManager(QObject):
             pass
         else :
             pass
+        self.m_current_state = state
+        return self.m_base_widget
 
     def setWorkPathOrFile(self, path):
-        a = self.m_processingLevel[self.m_current_state]
-        # self.m_processingLevel[self.m_current_state].setWorkPathOrFile(path)
-        a.setWorkPathOrFile(path)
+        self.m_processingLevel[self.m_current_state].setWorkPathOrFile(path)
 
     def slot(self, img):
         print(img)

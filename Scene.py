@@ -43,28 +43,34 @@ class Scene(QGraphicsScene):
                 pass  # временно
         return self.m_items
 
+    def squareRect(self, rect):
+        return rect.get_W() * rect.get_H()
+
     def sortSizeRect(self):
         list = []
         items_list = self.items()
         for item in items_list:
             if isinstance(item, newRectangle):
                 list.append(item)
-        sorted(list, key=lambda a, b: a.get_W() * a.get_H < b.get_W() * b.get_H())
-        for i in list:
-            list[i].setZValue(1000 - i)
+        sort_list = sorted(list, key=self.squareRect)
+        for i in range(len(sort_list)):
+            sort_list[i].setZValue(1000 - i)
 
     def deleteItem(self):
         items_list = self.items()
         count = 0
         for item in items_list:
             if isinstance(item, newRectangle):
-                if (item.isSelected()):
+                if item.isSelected():
+                    #item.prepareGeometryChange()
                     self.removeItem(item)
                     count += 1
         if count > 0:
             self.update()
 
-    def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
+
+
+    def mousePressEvent(self, event):
         super().mousePressEvent(event)
         if self.draw:
             if event.button() == Qt.LeftButton:
@@ -76,7 +82,7 @@ class Scene(QGraphicsScene):
                 self.lastPos_Y = event.scenePos().y()
                 self.m_left_btn_press = True
 
-    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
+    def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
         rectangle = QRectF()
         if self.draw:
@@ -103,7 +109,7 @@ class Scene(QGraphicsScene):
                     rectangle.setTopRight(event.scenePos())
                     self.rect.setRect(rectangle)
 
-    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
+    def mouseReleaseEvent(self, event):
         super().mousePressEvent(event)
         if self.draw:
             if event.button() == Qt.LeftButton:

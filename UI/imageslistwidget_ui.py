@@ -68,4 +68,4 @@ class Ui_imagesListWidget(object):
         self.nextImage_b.setText(_translate("imagesListWidget", ">>"))
         self.cutImage_b.setText(_translate("imagesListWidget", "Cut"))
         self.label.setText(_translate("imagesListWidget", " Plugin"))
-        self.color_b.setText(_translate("imagesListWidget", "Color"))
+        self.color_b.setText(_translate("imagesListWidget", "GRAY"))

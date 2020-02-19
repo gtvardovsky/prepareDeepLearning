@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent, QGraphicsOb
 from PyQt5.QtGui import QPen
 import copy
 
-RESIZE_ZONE_SIZE = 5
+RESIZE_ZONE_SIZE = 15
 MIN_AREA_SIZE = 10
 
 class newRectangle(QGraphicsObject):
@@ -44,7 +44,7 @@ class newRectangle(QGraphicsObject):
         # Рисуем прямоугольник
         painter.drawRect(self.m_innerRect)
 
-        # Проверяем кликнут ли прямоугольник для отрисовки квадратиков по углам
+        # Проверяем выбран ли прямоугольник для отрисовки квадратиков по углам
         if self.isSelected():
             zones = self.generate_zones()
             for key in zones:
@@ -58,6 +58,7 @@ class newRectangle(QGraphicsObject):
         self.update()
         if self.isSelected():
             self.setCursor(Qt.OpenHandCursor)
+
 
     # Событие выхода курсора мышми из области прямоугольника
     def hoverLeaveEvent(self, event):
@@ -173,12 +174,12 @@ class newRectangle(QGraphicsObject):
         self.m_movable = en
         if en:
             self.setAcceptHoverEvents(True)
-            self.setFlag(QGraphicsItem.ItemIsSelectable)
-            self.setFlag(QGraphicsItem.ItemIsMovable)
+            self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+            self.setFlag(QGraphicsItem.ItemIsMovable, True)
         else:
             self.setAcceptHoverEvents(False)
             self.setFlag(QGraphicsItem.ItemIsSelectable, False)
-            self.setFlag(QGraphicsItem.ItemIsMovable, True)
+            self.setFlag(QGraphicsItem.ItemIsMovable, False)
 
     def get_W(self):
         return self.m_innerRect.width()

@@ -14,14 +14,10 @@ import cv2
 
 class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
     def __init__(self):
-        # Доступ к переменным, методам и т.д. в файле mainwindow_ui.py
         super().__init__()
-        # Инициализация дизайна
-        self.init_UI()
-        # Сцена
         self.mScene = Scene()
+        self.init_UI()
         self.graphicsView.setScene(self.mScene)
-        # Manager
         self.m_imageProcessingManager = ImageProcessingManager()
 
         self.m_workState = WORK_STATE['IMAGES_LIST']
@@ -31,6 +27,8 @@ class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
         # connect
         self.m_imageProcessingManager.m_processingLevel[WORK_STATE['IMAGES_LIST']].newFrameSignal.connect(self.newFrame)
 
+        self.setControlWidget(self.m_workState)
+
 
     def init_UI(self):
         self.setupUi(self)
@@ -39,10 +37,10 @@ class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
         mSetWid.mImageRadio.toggled.connect(lambda: self.setWorkStateImage(mSetWid.mImageRadio))
         mSetWid.mVideoRadio.toggled.connect(lambda: self.setWorkStateVideo(mSetWid.mVideo_radio))
         mSetWid.mWebCamRadio.toggled.connect(lambda: self.setWorkStateWebcam(mSetWid.mWebCam_radio))
-        mImageWidget = ImagesListWidget()
+        #mImageWidget = ImagesListWidget()
         h_box = QHBoxLayout()
         h_box.addWidget(mSetWid)
-        h_box.addWidget(mImageWidget)
+        #h_box.addWidget(mImageWidget)
         self.SettingsGroupBox.setLayout(h_box)
 
         # Добавление иконок в ToolBar
@@ -60,6 +58,7 @@ class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
         delete_icon = QIcon("icon/delete.png")
         delete_action= QAction(delete_icon, "Del rectangle", self)
         self.mainToolBar.addAction(delete_action)
+        delete_action.triggered.connect(self.mScene.deleteItem)
 
         save_icon = QIcon("icon/save.png")
         save_action = QAction(save_icon, "Cut rectangle", self)
@@ -93,6 +92,7 @@ class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
         if checked:
             self.m_workState = WORK_STATE['IMAGES_LIST']
             self.setControlWidget(self.m_workState)
+
     def setWorkStateVideo(self, checked):
         if checked:
             self.m_workState = WORK_STATE['VIDEO']
@@ -123,9 +123,10 @@ class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
             self.mScene.set_draw_enable(checked)
 
 
-    def setControlWidger(self, state):
+    def setControlWidget(self, state):
         self.SettingsGroupBox.layout().removeWidget(self.m_pointWidget)
         self.SettingsGroupBox.layout().removeItem(self.m_spacer)
+        self.m_pointWidget = None
         self.m_pointWidget = self.m_imageProcessingManager.get_current_widget(state)
         if self.m_pointWidget is not None:
             self.mScene.clear()
@@ -141,9 +142,7 @@ class MainWindow(QMainWindow, mainwindow_ui.Ui_MainWindow):
 
         self.mScene.clear()
         self.mScene.setSceneRect(0, 0, img.width(), img.height())
-
-        pix = QPixmap.fromImage(img)
-        self.mScene.addPixmap(pix)
+        self.mScene.addPixmap(QPixmap.fromImage(img))
         self.resizeEvent(None)
 
     def resizeEvent(self, event):

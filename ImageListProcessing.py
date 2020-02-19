@@ -3,6 +3,7 @@ from CommonProcessingInterface import CommonProcessingInterface
 from CommonState import COLOR_IMAGE
 from PyQt5.QtGui import *
 import cv2
+import threading
 
 
 class ImageListProcessing(CommonProcessingInterface):
@@ -10,7 +11,6 @@ class ImageListProcessing(CommonProcessingInterface):
     def __init__(self, sizeCutRegion):
         super().__init__(sizeCutRegion)
         self.m_image_list = []
-        self.m_id_image = 0
         self.m_classificationFile = QFile()
         m_size_cutRegion = {}
         #self.
@@ -27,27 +27,48 @@ class ImageListProcessing(CommonProcessingInterface):
         self.getImagesList(directory.absolutePath());
 
     def getImagesList(self, dir):
-        dir = QDir(dir)
-        self.m_image_list = dir.entryList(["*.jpg"])
-        if len(self.m_image_list) > 0:
-            self.openImage(self.m_id_image)
+        def readImageWorker(dir):
+            dir = QDir(dir)
+            self.m_image_list = dir.entryList(
+                ["*.jpg", "*.JPG",
+                 "*.bmp", "*.BMP",
+                 "*.png", "*.PNG",
+                 "*.jpeg", "*.JPEG"], QDir.Files)
+            if len(self.m_image_list) > 0:
+                self.openImage(self.m_id_image)
+        thread = threading.Thread(target = readImageWorker, args=(dir,), daemon= True)
+        thread.start()
+
+
 
     def openImage(self, id):
         file = self.m_path + '/' + self.m_image_list[id]
-        if self.m_color == COLOR_IMAGE['COLOR']:
+        if self.m_color == COLOR_IMAGE['GRAY']:
             self.m_currentImage = cv2.imread(str(file), cv2.IMREAD_GRAYSCALE)
         else:
             self.m_currentImage = cv2.imread(str(file), cv2.IMREAD_COLOR)
-            if self.m_currentImage.channels == 1:
-                cv2.cvtColor(self.m_currentImage, self.m_currentImage, cv2.CV_GRAY2RGB)
+            if len(self.m_currentImage.shape) == 1:
+                cv2.cvtColor(self.m_currentImage, cv2.COLOR_GRAY2RGB)
             else:
-                cv2.cvtColor(self.m_currentImage, self.m_currentImage, cv2.CV_BGR2RGB)
-        print(self.m_currentImage)
+                cv2.cvtColor(self.m_currentImage, cv2.COLOR_BGR2RGB)
         if self.m_currentImage.data:
             # Plugin Manager
             self.newFrameSignal.emit(self.m_currentImage)
             pass
 
+    def onPreviousButtonPress(self):
+        if len(self.m_image_list) > 0:
+            self.m_id_image -= 1
+            if self.m_id_image < 0:
+                self.m_id_image = len(self.m_image_list) - 1
+            self.openImage(self.m_id_image)
+
+    def onNextButtonPress(self):
+        if len(self.m_image_list) > 0:
+            self.m_id_image += 1
+            if self.m_id_image >= len(self.m_image_list):
+                self.m_id_image = 0
+            self.openImage(self.m_id_image)
 
 
 
